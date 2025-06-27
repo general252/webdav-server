@@ -24,7 +24,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"golang.org/x/net/webdav"
+	"github.com/general252/webdav-server/webdav"
 )
 
 var port = flag.Int("port", 9999, "server port")
