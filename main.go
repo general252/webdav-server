@@ -23,10 +23,6 @@ import (
 	"github.com/general252/webdav-server/webdav"
 )
 
-var userPassword = map[string]string{
-	"root": "123456!",
-}
-
 type WindowsHandler struct {
 	handlers   []*webdav.Handler
 	memHandler *webdav.Handler
@@ -94,6 +90,8 @@ func main() {
 		certFile = "webdav.crt"
 		keyFile  = "webdav.key"
 		host     = "0.0.0.0"
+		user     = "root"
+		password = "123456!"
 		port     = 2080
 	)
 
@@ -101,6 +99,8 @@ func main() {
 	flag.StringVar(&keyFile, "key", "webdav.key", "key file")
 	flag.StringVar(&host, "host", "0.0.0.0", "host")
 	flag.IntVar(&port, "port", 2080, "port")
+	flag.StringVar(&user, "user", "root", "user")
+	flag.StringVar(&password, "password", "123456!", "password")
 	flag.Parse()
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -125,16 +125,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// 认证拦截
 		u, p, ok := r.BasicAuth()
-		if !ok {
-			w.Header().Set("WWW-Authenticate", `Basic realm="WebDAV"`)
-			w.WriteHeader(401)
-			return
-		}
-		if v, ok := userPassword[u]; !ok {
-			w.Header().Set("WWW-Authenticate", `Basic realm="WebDAV"`)
-			w.WriteHeader(401)
-			return
-		} else if v != p {
+		if !ok || user != u || password != p {
 			w.Header().Set("WWW-Authenticate", `Basic realm="WebDAV"`)
 			w.WriteHeader(401)
 			return
